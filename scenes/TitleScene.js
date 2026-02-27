@@ -5,8 +5,8 @@ export default class TitleScene extends Phaser.Scene {
     this.add.text(400, 70, 'ASTRO DASH', { fontSize: '52px', color: '#ffffff' }).setOrigin(0.5);
     this.add.text(400, 130, '8-BIT SPACE RUNNER', { fontSize: '16px', color: '#8888ff' }).setOrigin(0.5);
 
-    const best = localStorage.getItem('astro_best') || '0';
-    const coins = localStorage.getItem('astro_coins') || '0';
+    const best = parseInt(localStorage.getItem('astro_best') || '0');
+    const coins = parseInt(localStorage.getItem('astro_coins') || '0');
     this.add.text(400, 175, `Best Score: ${best}`, { fontSize: '18px', color: '#ffdd00' }).setOrigin(0.5);
     this.add.text(400, 200, `Coins: ${coins}`, { fontSize: '16px', color: '#ffdd00' }).setOrigin(0.5);
 
