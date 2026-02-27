@@ -243,6 +243,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   _buildTouchControls() {
+    // Only show on-screen buttons on touch devices
+    if (!this.sys.game.device.input.touch) return;
+
     const alpha = 0.18;
     const btnW = 160;
     const btnH = 52;
@@ -257,8 +260,6 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5).setAlpha(0.7).setDepth(21);
 
     jumpBg.on('pointerdown', () => { this._jumpPressed = true; });
-    jumpBg.on('pointerover', () => jumpBg.setFillStyle(0xffffff, 0.3));
-    jumpBg.on('pointerout',  () => jumpBg.setFillStyle(0xffffff, alpha));
 
     // Slide button — right side
     const slideBg = this.add.rectangle(800 - btnW / 2, y, btnW, btnH, 0xffffff, alpha)
@@ -269,8 +270,6 @@ export default class GameScene extends Phaser.Scene {
       .setOrigin(0.5).setAlpha(0.7).setDepth(21);
 
     slideBg.on('pointerdown', () => { this._slidePressed = true; });
-    slideBg.on('pointerover', () => slideBg.setFillStyle(0xffffff, 0.3));
-    slideBg.on('pointerout',  () => slideBg.setFillStyle(0xffffff, alpha));
   }
 
   startBoss() {

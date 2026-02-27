@@ -6,7 +6,7 @@ html, body {
   height: 100%;
   overflow: hidden;
   position: fixed; /* prevents iOS scroll bounce */
-  touch-action: none; /* disable default touch gestures */
+  touch-action: none;
 }
 
 body {
@@ -26,24 +26,4 @@ body {
 canvas {
   display: block;
   touch-action: none;
-}
-
-/* Portrait rotation nudge */
-#rotate-hint {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #000;
-  color: #fff;
-  font-family: monospace;
-  font-size: 18px;
-  text-align: center;
-  padding-top: 40vh;
-  z-index: 999;
-  line-height: 2;
-}
-
-@media (orientation: portrait) and (max-width: 600px) {
-  #rotate-hint { display: block; }
-  #game-container canvas { display: none; }
 }
