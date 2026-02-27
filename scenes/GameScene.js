@@ -61,6 +61,20 @@ export default class GameScene extends Phaser.Scene {
     // HUD placeholder
     this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '16px', color: '#fff' });
     this.coinText = this.add.text(700, 10, 'Coins: 0', { fontSize: '16px', color: '#fff' });
+
+    this.ZONES = [
+      { name: 'Asteroid Belt', bgColor: 0x0a0a1a, groundColor: 0x1a1a4a },
+      { name: 'Alien Planet',  bgColor: 0x1a0a2a, groundColor: 0x2a1a0a },
+      { name: 'Black Hole',    bgColor: 0x050510, groundColor: 0x101030 },
+    ];
+    this.currentZone = 0;
+    this.zoneScore = 0;
+    this.ZONE_LENGTH = 500;
+    this.inBoss = false;
+
+    this.zoneText = this.add.text(400, 10, 'Zone 1: Asteroid Belt', {
+      fontSize: '14px', color: '#ffdd00'
+    }).setOrigin(0.5, 0);
   }
 
   spawnObstacle() {
@@ -129,6 +143,15 @@ export default class GameScene extends Phaser.Scene {
       obs.setVelocityX(-this.worldSpeed);
     });
 
+    // Zone tracking
+    if (!this.inBoss) {
+      this.zoneScore += this.worldSpeed * dt * 0.01;
+      if (this.zoneScore >= this.ZONE_LENGTH) {
+        this.zoneScore = 0;
+        this.startBoss();
+      }
+    }
+
     const onGround = this.player.body.blocked.down;
 
     // Jump
@@ -165,5 +188,21 @@ export default class GameScene extends Phaser.Scene {
     if (this.ground1.x < -400) this.ground1.x = this.ground2.x + 800;
     if (this.ground2.x < -400) this.ground2.x = this.ground1.x + 800;
     this.groundGroup.refresh();
+  }
+
+  startBoss() {
+    this.inBoss = true;
+    this.zoneText.setText('!! BOSS !!').setColor('#ff2200');
+    // Temporary: auto-advance after 10s (will be replaced in Task 9)
+    this.time.delayedCall(10000, () => this.endBoss());
+  }
+
+  endBoss() {
+    this.currentZone = (this.currentZone + 1) % this.ZONES.length;
+    const zone = this.ZONES[this.currentZone];
+    this.inBoss = false;
+    this.bg1.setFillStyle(zone.bgColor);
+    this.zoneText.setText(`Zone ${this.currentZone + 1}: ${zone.name}`).setColor('#ffdd00');
+    this.worldSpeed += 30;
   }
 }
