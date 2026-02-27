@@ -220,7 +220,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Boss timer — survive 10s to win
     this.bossTimeLeft = 10;
-    this.bossTimerText = this.add.text(400, 30, '10', { fontSize: '20px', color: '#ff4444' }).setOrigin(0.5, 0);
+    this.bossTimerText = this.add.text(400, 30, '10', { fontSize: '20px', color: '#ff4444' }).setOrigin(0.5, 0).setDepth(10);
 
     this.bossCountdown = this.time.addEvent({
       delay: 1000,
