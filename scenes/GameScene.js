@@ -71,8 +71,8 @@ export default class GameScene extends Phaser.Scene {
     this.spawnCoin();
 
     // HUD placeholder
-    this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '16px', color: '#fff' });
-    this.coinText = this.add.text(700, 10, 'Coins: 0', { fontSize: '16px', color: '#fff' });
+    this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '16px', color: '#fff' }).setDepth(10);
+    this.coinText = this.add.text(700, 10, 'Coins: 0', { fontSize: '16px', color: '#fff' }).setDepth(10);
 
     this.ZONES = [
       { name: 'Asteroid Belt', bgColor: 0x0a0a1a, groundColor: 0x1a1a4a },
@@ -84,9 +84,7 @@ export default class GameScene extends Phaser.Scene {
     this.ZONE_LENGTH = 500;
     this.inBoss = false;
 
-    this.zoneText = this.add.text(400, 10, 'Zone 1: Asteroid Belt', {
-      fontSize: '14px', color: '#ffdd00'
-    }).setOrigin(0.5, 0);
+    this.zoneText = this.add.text(400, 10, `Zone 1: ${this.ZONES[0].name}`, { fontSize: '14px', color: '#ffdd00' }).setOrigin(0.5, 0).setDepth(10);
   }
 
   spawnObstacle() {
