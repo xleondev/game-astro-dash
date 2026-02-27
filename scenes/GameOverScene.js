@@ -1,7 +1,10 @@
+import { audio } from '../audio.js';
+
 export default class GameOverScene extends Phaser.Scene {
   constructor() { super('GameOverScene'); }
 
   create(data) {
+    audio.stopMusic();
     const score = data.score || 0;
     const coins = data.coins || 0;
 

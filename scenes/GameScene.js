@@ -1,3 +1,5 @@
+import { audio } from '../audio.js';
+
 export default class GameScene extends Phaser.Scene {
   constructor() { super('GameScene'); }
 
@@ -85,6 +87,9 @@ export default class GameScene extends Phaser.Scene {
     this.inBoss = false;
 
     this.zoneText = this.add.text(400, 10, `Zone 1: ${this.ZONES[0].name}`, { fontSize: '14px', color: '#ffdd00' }).setOrigin(0.5, 0).setDepth(10);
+
+    // Start background music for zone 0
+    audio.playMusic(0);
   }
 
   spawnObstacle() {
@@ -128,6 +133,7 @@ export default class GameScene extends Phaser.Scene {
     coin.destroy();
     this.coinsCollected++;
     this.coinText.setText('Coins: ' + this.coinsCollected);
+    audio.playSFX('coin');
   }
 
   hitObstacle() {
@@ -138,6 +144,8 @@ export default class GameScene extends Phaser.Scene {
     if (this.bossCountdown) { this.bossCountdown.remove(); this.bossCountdown = null; }
     if (this.bossFiringEvent) { this.bossFiringEvent.remove(); this.bossFiringEvent = null; }
 
+    audio.stopMusic();
+    audio.playSFX('hit');
     this.physics.pause();
     this.player.setTint(0xff0000);
     this.time.delayedCall(1000, () => {
@@ -172,12 +180,14 @@ export default class GameScene extends Phaser.Scene {
     // Jump
     if ((Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.jumpKey)) && onGround && !this.isSliding) {
       this.player.setVelocityY(-600);
+      audio.playSFX('jump');
     }
 
     // Slide
     if (Phaser.Input.Keyboard.JustDown(this.cursors.down) && onGround) {
       if (!this.isSliding) {
         this.isSliding = true;
+        audio.playSFX('slide');
         this.player.setDisplaySize(40, 30); // squish to half height
         this.player.body.setSize(40, 30);
         this.player.y = this.GROUND_Y - 15;
@@ -208,6 +218,8 @@ export default class GameScene extends Phaser.Scene {
   startBoss() {
     this.inBoss = true;
     this.zoneText.setText('!! BOSS !!').setColor('#ff2200');
+    audio.stopMusic();
+    audio.playSFX('boss_start');
 
     // Spawn boss on right side
     this.boss = this.physics.add.sprite(700, this.GROUND_Y - 80, 'boss');
@@ -258,6 +270,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.boss) { this.boss.destroy(); this.boss = null; }
     if (this.bossTimerText) { this.bossTimerText.destroy(); }
     this.bossBullets.clear(true, true);
+    audio.playSFX('boss_win');
     this.endBoss();
   }
 
@@ -268,5 +281,6 @@ export default class GameScene extends Phaser.Scene {
     this.bg1.setFillStyle(zone.bgColor);
     this.zoneText.setText(`Zone ${this.currentZone + 1}: ${zone.name}`).setColor('#ffdd00');
     this.worldSpeed += 30;
+    audio.playMusic(this.currentZone);
   }
 }

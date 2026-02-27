@@ -1,7 +1,10 @@
+import { audio } from '../audio.js';
+
 export default class TitleScene extends Phaser.Scene {
   constructor() { super('TitleScene'); }
 
   create() {
+    audio.stopMusic();
     this.add.text(400, 70, 'ASTRO DASH', { fontSize: '52px', color: '#ffffff' }).setOrigin(0.5);
     this.add.text(400, 130, '8-BIT SPACE RUNNER', { fontSize: '16px', color: '#8888ff' }).setOrigin(0.5);
 
@@ -17,6 +20,9 @@ export default class TitleScene extends Phaser.Scene {
       .setInteractive({ useHandCursor: true });
     selectBtn.on('pointerdown', () => this.scene.start('SelectScene'));
 
-    this.input.keyboard.once('keydown-SPACE', () => this.scene.start('GameScene'));
+    this.input.keyboard.once('keydown-SPACE', () => {
+      audio.resume();
+      this.scene.start('GameScene');
+    });
   }
 }
