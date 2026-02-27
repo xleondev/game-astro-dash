@@ -193,8 +193,57 @@ export default class GameScene extends Phaser.Scene {
   startBoss() {
     this.inBoss = true;
     this.zoneText.setText('!! BOSS !!').setColor('#ff2200');
-    // Temporary: auto-advance after 10s (will be replaced in Task 9)
-    this.time.delayedCall(10000, () => this.endBoss());
+
+    // Spawn boss on right side
+    this.boss = this.physics.add.sprite(700, this.GROUND_Y - 80, 'boss');
+    this.boss.body.allowGravity = false;
+    this.boss.setImmovable(true);
+
+    // Boss bullets group
+    this.bossBullets = this.physics.add.group();
+    this.physics.add.overlap(this.player, this.bossBullets, this.hitObstacle, null, this);
+
+    // Boss timer — survive 10s to win
+    this.bossTimeLeft = 10;
+    this.bossTimerText = this.add.text(400, 30, '10', { fontSize: '20px', color: '#ff4444' }).setOrigin(0.5, 0);
+
+    this.bossCountdown = this.time.addEvent({
+      delay: 1000,
+      repeat: 9,
+      callback: () => {
+        this.bossTimeLeft--;
+        this.bossTimerText.setText(String(this.bossTimeLeft));
+        if (this.bossTimeLeft <= 0) this.defeatBoss();
+      }
+    });
+
+    // Boss fires every 1.2s
+    this.bossFiringEvent = this.time.addEvent({
+      delay: 1200,
+      loop: true,
+      callback: this.fireBossBullet,
+      callbackScope: this
+    });
+  }
+
+  fireBossBullet() {
+    if (!this.boss || this.gameOver) return;
+    // Alternate between high and low shots
+    const yOffset = this.bossBulletHigh ? -40 : 0;
+    this.bossBulletHigh = !this.bossBulletHigh;
+    const b = this.bossBullets.create(this.boss.x - 40, this.boss.y + yOffset, 'bullet');
+    b.setVelocityX(-400);
+    b.body.allowGravity = false;
+    this.time.delayedCall(2000, () => { if (b) b.destroy(); });
+  }
+
+  defeatBoss() {
+    this.bossFiringEvent.remove();
+    this.bossCountdown.remove();
+    if (this.boss) { this.boss.destroy(); this.boss = null; }
+    if (this.bossTimerText) { this.bossTimerText.destroy(); }
+    this.bossBullets.clear(true, true);
+    this.endBoss();
   }
 
   endBoss() {
