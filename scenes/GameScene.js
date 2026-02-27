@@ -45,11 +45,31 @@ export default class GameScene extends Phaser.Scene {
 
     this.physics.add.collider(this.player, this.groundGroup);
 
-    // Input
+    // Keyboard input
     this.cursors = this.input.keyboard.createCursorKeys();
     this.jumpKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     this.isSliding = false;
+
+    // Touch input flags (set by on-screen buttons and swipe detection)
+    this._jumpPressed = false;
+    this._slidePressed = false;
+    this._touchStartY = 0;
+
+    // On-screen touch buttons
+    this._buildTouchControls();
+
+    // Swipe detection (tap = jump, swipe down = slide)
+    this.input.on('pointerdown', (p) => { this._touchStartY = p.y; });
+    this.input.on('pointerup', (p) => {
+      if (this.gameOver) return;
+      const dy = p.y - this._touchStartY;
+      if (dy > 40) {
+        this._slidePressed = true;
+      } else if (Math.abs(dy) < 40) {
+        this._jumpPressed = true;
+      }
+    });
 
     // World speed
     this.worldSpeed = 300; // px/sec, increases over time
@@ -177,26 +197,33 @@ export default class GameScene extends Phaser.Scene {
 
     const onGround = this.player.body.blocked.down;
 
-    // Jump
-    if ((Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.jumpKey)) && onGround && !this.isSliding) {
+    // Jump — keyboard or touch
+    const jumpTrigger = Phaser.Input.Keyboard.JustDown(this.cursors.up)
+      || Phaser.Input.Keyboard.JustDown(this.jumpKey)
+      || this._jumpPressed;
+    this._jumpPressed = false;
+
+    if (jumpTrigger && onGround && !this.isSliding) {
       this.player.setVelocityY(-600);
       audio.playSFX('jump');
     }
 
-    // Slide
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.down) && onGround) {
-      if (!this.isSliding) {
-        this.isSliding = true;
-        audio.playSFX('slide');
-        this.player.setDisplaySize(40, 30); // squish to half height
-        this.player.body.setSize(40, 30);
-        this.player.y = this.GROUND_Y - 15;
-        this.time.delayedCall(500, () => {
-          this.isSliding = false;
-          this.player.setDisplaySize(40, 60);
-          this.player.body.setSize(40, 60);
-        });
-      }
+    // Slide — keyboard or touch
+    const slideTrigger = Phaser.Input.Keyboard.JustDown(this.cursors.down)
+      || this._slidePressed;
+    this._slidePressed = false;
+
+    if (slideTrigger && onGround && !this.isSliding) {
+      this.isSliding = true;
+      audio.playSFX('slide');
+      this.player.setDisplaySize(40, 30);
+      this.player.body.setSize(40, 30);
+      this.player.y = this.GROUND_Y - 15;
+      this.time.delayedCall(500, () => {
+        this.isSliding = false;
+        this.player.setDisplaySize(40, 60);
+        this.player.body.setSize(40, 60);
+      });
     }
 
     const move = this.worldSpeed * dt;
@@ -213,6 +240,37 @@ export default class GameScene extends Phaser.Scene {
     if (this.ground1.x < -400) this.ground1.x = this.ground2.x + 800;
     if (this.ground2.x < -400) this.ground2.x = this.ground1.x + 800;
     this.groundGroup.refresh();
+  }
+
+  _buildTouchControls() {
+    const alpha = 0.18;
+    const btnW = 160;
+    const btnH = 52;
+    const y = 274;
+
+    // Jump button — left side
+    const jumpBg = this.add.rectangle(btnW / 2, y, btnW, btnH, 0xffffff, alpha)
+      .setStrokeStyle(1, 0xffffff, 0.35)
+      .setDepth(20)
+      .setInteractive();
+    this.add.text(btnW / 2, y, '▲  JUMP', { fontSize: '13px', color: '#ffffff' })
+      .setOrigin(0.5).setAlpha(0.7).setDepth(21);
+
+    jumpBg.on('pointerdown', () => { this._jumpPressed = true; });
+    jumpBg.on('pointerover', () => jumpBg.setFillStyle(0xffffff, 0.3));
+    jumpBg.on('pointerout',  () => jumpBg.setFillStyle(0xffffff, alpha));
+
+    // Slide button — right side
+    const slideBg = this.add.rectangle(800 - btnW / 2, y, btnW, btnH, 0xffffff, alpha)
+      .setStrokeStyle(1, 0xffffff, 0.35)
+      .setDepth(20)
+      .setInteractive();
+    this.add.text(800 - btnW / 2, y, '▼  SLIDE', { fontSize: '13px', color: '#ffffff' })
+      .setOrigin(0.5).setAlpha(0.7).setDepth(21);
+
+    slideBg.on('pointerdown', () => { this._slidePressed = true; });
+    slideBg.on('pointerover', () => slideBg.setFillStyle(0xffffff, 0.3));
+    slideBg.on('pointerout',  () => slideBg.setFillStyle(0xffffff, alpha));
   }
 
   startBoss() {

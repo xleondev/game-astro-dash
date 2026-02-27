@@ -23,14 +23,20 @@ export default class GameOverScene extends Phaser.Scene {
     this.add.text(400, 200, `Coins earned: ${coins}`, { fontSize: '18px', color: '#ffdd00' }).setOrigin(0.5);
     this.add.text(400, 230, `Total coins: ${prevCoins + coins}`, { fontSize: '16px', color: '#aaaaaa' }).setOrigin(0.5);
 
+    // Large touch-friendly button
+    const btnBg = this.add.rectangle(400, 270, 220, 44, 0x003322)
+      .setStrokeStyle(2, 0x00ff88)
+      .setInteractive({ useHandCursor: true });
     const btn = this.add.text(400, 270, '[ PLAY AGAIN ]', { fontSize: '20px', color: '#00ff88' })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
 
-    btn.on('pointerover', () => btn.setColor('#ffffff'));
-    btn.on('pointerout', () => btn.setColor('#00ff88'));
-    btn.on('pointerdown', () => this.scene.start('TitleScene'));
+    const goTitle = () => this.scene.start('TitleScene');
+    btnBg.on('pointerover', () => { btnBg.setFillStyle(0x005533); btn.setColor('#ffffff'); });
+    btnBg.on('pointerout',  () => { btnBg.setFillStyle(0x003322); btn.setColor('#00ff88'); });
+    btnBg.on('pointerdown', goTitle);
+    btn.on('pointerdown', goTitle);
 
-    this.input.keyboard.once('keydown-SPACE', () => this.scene.start('TitleScene'));
+    this.input.keyboard.once('keydown-SPACE', goTitle);
   }
 }

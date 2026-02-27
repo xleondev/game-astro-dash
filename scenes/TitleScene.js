@@ -13,16 +13,23 @@ export default class TitleScene extends Phaser.Scene {
     this.add.text(400, 175, `Best Score: ${best}`, { fontSize: '18px', color: '#ffdd00' }).setOrigin(0.5);
     this.add.text(400, 200, `Coins: ${coins}`, { fontSize: '16px', color: '#ffdd00' }).setOrigin(0.5);
 
-    this.add.text(400, 245, 'Press SPACE to Start', { fontSize: '18px', color: '#aaaaaa' }).setOrigin(0.5);
+    this.add.text(400, 240, 'Press SPACE or TAP to Start', { fontSize: '16px', color: '#aaaaaa' }).setOrigin(0.5);
 
     const selectBtn = this.add.text(400, 275, 'Change Character >', { fontSize: '14px', color: '#00ff88' })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
     selectBtn.on('pointerdown', () => this.scene.start('SelectScene'));
 
-    this.input.keyboard.once('keydown-SPACE', () => {
+    const startGame = () => {
       audio.resume();
       this.scene.start('GameScene');
-    });
+    };
+
+    this.input.keyboard.once('keydown-SPACE', startGame);
+
+    // Large tap zone covering the middle of the screen (excludes the selectBtn area)
+    const tapZone = this.add.rectangle(400, 160, 800, 200, 0xffffff, 0)
+      .setInteractive({ useHandCursor: true });
+    tapZone.on('pointerdown', startGame);
   }
 }
