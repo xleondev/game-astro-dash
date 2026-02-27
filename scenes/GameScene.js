@@ -26,6 +26,17 @@ export default class GameScene extends Phaser.Scene {
     this.ground1 = this.groundGroup.create(400, 295, 'ground');
     this.ground2 = this.groundGroup.create(1200, 295, 'ground');
 
+    // Player
+    this.player = this.physics.add.sprite(120, this.GROUND_Y - 60, 'player');
+    this.player.setCollideWorldBounds(true);
+    this.physics.add.collider(this.player, this.groundGroup);
+
+    // Input
+    this.cursors = this.input.keyboard.createCursorKeys();
+    this.jumpKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+    this.isSliding = false;
+
     // World speed
     this.worldSpeed = 300; // px/sec, increases over time
 
@@ -35,6 +46,13 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update(time, delta) {
+    const onGround = this.player.body.blocked.down;
+
+    // Jump
+    if ((Phaser.Input.Keyboard.JustDown(this.cursors.up) || Phaser.Input.Keyboard.JustDown(this.jumpKey)) && onGround && !this.isSliding) {
+      this.player.setVelocityY(-600);
+    }
+
     const dt = delta / 1000;
     const move = this.worldSpeed * dt;
 
