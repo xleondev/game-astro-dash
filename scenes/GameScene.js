@@ -40,12 +40,72 @@ export default class GameScene extends Phaser.Scene {
     // World speed
     this.worldSpeed = 300; // px/sec, increases over time
 
+    // Game state
+    this.gameOver = false;
+    this.score = 0;
+    this.coinsCollected = 0;
+    this.bossBulletHigh = false;
+
+    // Obstacles
+    this.obstacles = this.physics.add.group();
+    this.physics.add.collider(this.obstacles, this.groundGroup);
+    this.physics.add.overlap(this.player, this.obstacles, this.hitObstacle, null, this);
+
+    this.spawnObstacle();
+
     // HUD placeholder
     this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '16px', color: '#fff' });
     this.coinText = this.add.text(700, 10, 'Coins: 0', { fontSize: '16px', color: '#fff' });
   }
 
+  spawnObstacle() {
+    if (this.gameOver) return;
+
+    const type = Phaser.Math.RND.pick(['asteroid', 'asteroid', 'ufo']); // 2:1 ratio
+    let obs;
+
+    if (type === 'asteroid') {
+      obs = this.obstacles.create(820, this.GROUND_Y - 40, 'asteroid');
+      obs.setVelocityX(-this.worldSpeed);
+      obs.body.allowGravity = false;
+      obs.obstacleType = 'asteroid';
+    } else {
+      obs = this.obstacles.create(820, this.GROUND_Y - 80, 'ufo');
+      obs.setVelocityX(-this.worldSpeed);
+      obs.body.allowGravity = false;
+      obs.obstacleType = 'ufo';
+    }
+
+    // Despawn when off screen
+    this.time.delayedCall(3500, () => { if (obs) obs.destroy(); });
+
+    // Schedule next spawn (1.5–3s gap, shrinks with speed)
+    const gap = Phaser.Math.Between(1500, 3000) * (300 / this.worldSpeed);
+    this.time.delayedCall(gap, this.spawnObstacle, [], this);
+  }
+
+  hitObstacle() {
+    this.gameOver = true;
+    this.physics.pause();
+    this.player.setTint(0xff0000);
+    this.time.delayedCall(1000, () => {
+      this.scene.start('GameOverScene', { score: Math.floor(this.score), coins: this.coinsCollected });
+    });
+  }
+
   update(time, delta) {
+    const dt = delta / 1000;
+
+    if (this.gameOver) return;
+    this.score += this.worldSpeed * dt * 0.01;
+    this.scoreText.setText('Score: ' + Math.floor(this.score));
+
+    if (this.worldSpeed < 600) this.worldSpeed += 5 * dt;
+
+    this.obstacles.getChildren().forEach(obs => {
+      obs.setVelocityX(-this.worldSpeed);
+    });
+
     const onGround = this.player.body.blocked.down;
 
     // Jump
@@ -68,7 +128,6 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    const dt = delta / 1000;
     const move = this.worldSpeed * dt;
 
     // Scroll stars
