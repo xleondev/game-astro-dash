@@ -29,6 +29,18 @@ export default class GameScene extends Phaser.Scene {
     // Player
     this.player = this.physics.add.sprite(120, this.GROUND_Y - 60, 'player');
     this.player.setCollideWorldBounds(true);
+
+    // Apply selected skin as tint
+    const SKIN_TINTS = {
+      astronaut_white:  0xffffff,
+      astronaut_orange: 0xff8800,
+      robot:            0x88ccff,
+      alien:            0x00ff88,
+      rocket:           0xff4444,
+    };
+    const selected = localStorage.getItem('astro_selected') || 'astronaut_white';
+    this.player.setTint(SKIN_TINTS[selected] || 0xffffff);
+
     this.physics.add.collider(this.player, this.groundGroup);
 
     // Input
