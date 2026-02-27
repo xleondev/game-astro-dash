@@ -3,7 +3,6 @@ export default class BootScene extends Phaser.Scene {
 
   create() {
     // Helper: draw a pixel-art sprite from a 2D color grid
-    // 0 = transparent, any other value = filled pixel at that color
     const drawSprite = (key, pixels, px) => {
       const rows = pixels.length;
       const cols = pixels[0].length;
@@ -22,7 +21,7 @@ export default class BootScene extends Phaser.Scene {
     };
 
     // ── Color palette ──────────────────────────────────────────────
-    const W = 0xffffff; // white suit
+    const W = 0xffffff; // white
     const B = 0x44aaff; // blue visor
     const b = 0x1166cc; // dark blue visor edge
     const S = 0xcccccc; // suit highlight
@@ -35,10 +34,11 @@ export default class BootScene extends Phaser.Scene {
     const P = 0xcc44ff; // purple
     const p = 0x8800cc; // dark purple
     const T = 0x44ffaa; // teal (alien)
+    const t = 0x00cc77; // dark teal
+    const M = 0x999999; // metal grey (robot)
     const _ = 0;        // transparent
 
-    // ── Astronaut (player) 8×12 @ 5px = 40×60 ────────────────────
-    // Helmet, visor, spacesuit body, backpack, legs
+    // ── Astronaut / player (8×12 @ 5px = 40×60) ──────────────────
     drawSprite('player', [
       [_,W,W,W,W,W,W,_],
       [W,W,W,W,W,W,W,W],
@@ -52,6 +52,54 @@ export default class BootScene extends Phaser.Scene {
       [_,W,S,W,W,S,W,_],
       [_,W,_,_,_,_,W,_],
       [_,S,_,_,_,_,S,_],
+    ], 5);
+
+    // ── Robot (8×12 @ 5px = 40×60) ────────────────────────────────
+    drawSprite('robot', [
+      [D,M,M,M,M,M,M,D],
+      [M,L,M,M,M,M,L,M],
+      [M,B,B,M,M,B,B,M],  // blue eyes
+      [M,B,B,M,M,B,B,M],
+      [D,M,Y,M,M,Y,M,D],  // yellow bolts
+      [M,M,M,M,M,M,M,M],
+      [L,M,M,L,L,M,M,L],  // chest plate
+      [M,Y,M,M,M,M,Y,M],  // chest buttons
+      [M,M,L,M,M,L,M,M],
+      [D,M,M,M,M,M,M,D],
+      [D,D,M,_,_,M,D,D],  // legs
+      [D,D,M,_,_,M,D,D],
+    ], 5);
+
+    // ── Alien (8×12 @ 5px = 40×60) ────────────────────────────────
+    drawSprite('alien', [
+      [_,T,T,T,T,T,T,_],  // big round head
+      [T,T,T,T,T,T,T,T],
+      [T,W,W,T,T,W,W,T],  // large eyes
+      [T,p,p,T,T,p,p,T],  // pupils
+      [T,W,W,T,T,W,W,T],
+      [_,T,T,T,T,T,T,_],
+      [_,_,T,T,T,T,_,_],  // thin neck
+      [_,T,T,t,t,T,T,_],  // slim body
+      [_,T,_,T,T,_,T,_],  // arms out
+      [_,T,_,_,_,_,T,_],
+      [_,T,_,_,_,_,T,_],  // legs
+      [_,_,_,_,_,_,_,_],
+    ], 5);
+
+    // ── Mini Rocket (8×12 @ 5px = 40×60) ─────────────────────────
+    drawSprite('rocket', [
+      [_,_,_,W,_,_,_,_],  // nose tip
+      [_,_,W,R,W,_,_,_],
+      [_,W,R,R,R,W,_,_],
+      [_,R,R,R,R,R,_,_],  // body
+      [_,R,W,W,W,R,_,_],  // cockpit window
+      [_,R,W,W,W,R,_,_],
+      [_,R,R,R,R,R,_,_],
+      [O,R,R,R,R,R,O,_],  // wing fins
+      [O,O,R,R,R,O,O,_],
+      [O,O,R,R,R,O,O,_],
+      [_,O,Y,Y,Y,O,_,_],  // exhaust glow
+      [_,_,Y,O,Y,_,_,_],
     ], 5);
 
     // ── Asteroid (8×8 @ 5px = 40×40) ─────────────────────────────
@@ -85,12 +133,10 @@ export default class BootScene extends Phaser.Scene {
     ], 5);
 
     // ── Ground tile (800×20) ──────────────────────────────────────
-    // Solid platform with top highlight and bottom shadow
     const groundG = this.make.graphics({ x: 0, y: 0, add: false });
     groundG.fillStyle(0x1a1a4a); groundG.fillRect(0, 0, 800, 20);
-    groundG.fillStyle(0x3a3a7a); groundG.fillRect(0, 0, 800, 3);  // highlight
-    groundG.fillStyle(0x0a0a2a); groundG.fillRect(0, 17, 800, 3); // shadow
-    // Repeating surface detail
+    groundG.fillStyle(0x3a3a7a); groundG.fillRect(0, 0, 800, 3);
+    groundG.fillStyle(0x0a0a2a); groundG.fillRect(0, 17, 800, 3);
     for (let x = 0; x < 800; x += 40) {
       groundG.fillStyle(0x2a2a6a); groundG.fillRect(x, 4, 20, 6);
     }

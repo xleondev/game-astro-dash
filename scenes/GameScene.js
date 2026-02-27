@@ -26,20 +26,20 @@ export default class GameScene extends Phaser.Scene {
     this.ground1 = this.groundGroup.create(400, 295, 'ground');
     this.ground2 = this.groundGroup.create(1200, 295, 'ground');
 
-    // Player
-    this.player = this.physics.add.sprite(120, this.GROUND_Y - 60, 'player');
-    this.player.setCollideWorldBounds(true);
-
-    // Apply selected skin as tint
-    const SKIN_TINTS = {
-      astronaut_white:  0xffffff,
-      astronaut_orange: 0xff8800,
-      robot:            0x88ccff,
-      alien:            0x00ff88,
-      rocket:           0xff4444,
+    // Player — use correct texture and tint per selected skin
+    const SKIN_DATA = {
+      astronaut_white:  { texture: 'player',  tint: 0xffffff },
+      astronaut_orange: { texture: 'player',  tint: 0xff8800 },
+      robot:            { texture: 'robot',   tint: 0xffffff },
+      alien:            { texture: 'alien',   tint: 0xffffff },
+      rocket:           { texture: 'rocket',  tint: 0xffffff },
     };
     const selected = localStorage.getItem('astro_selected') || 'astronaut_white';
-    this.player.setTint(SKIN_TINTS[selected] || 0xffffff);
+    const skinData = SKIN_DATA[selected] || SKIN_DATA.astronaut_white;
+
+    this.player = this.physics.add.sprite(120, this.GROUND_Y - 60, skinData.texture);
+    this.player.setCollideWorldBounds(true);
+    this.player.setTint(skinData.tint);
 
     this.physics.add.collider(this.player, this.groundGroup);
 
