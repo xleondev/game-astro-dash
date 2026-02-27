@@ -53,6 +53,11 @@ export default class GameScene extends Phaser.Scene {
 
     this.spawnObstacle();
 
+    // Coins
+    this.coins = this.physics.add.group();
+    this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
+    this.spawnCoin();
+
     // HUD placeholder
     this.scoreText = this.add.text(10, 10, 'Score: 0', { fontSize: '16px', color: '#fff' });
     this.coinText = this.add.text(700, 10, 'Coins: 0', { fontSize: '16px', color: '#fff' });
@@ -84,7 +89,25 @@ export default class GameScene extends Phaser.Scene {
     this.time.delayedCall(gap, this.spawnObstacle, [], this);
   }
 
+  spawnCoin() {
+    if (this.gameOver) return;
+    const x = 820;
+    const y = Phaser.Math.RND.pick([this.GROUND_Y - 80, this.GROUND_Y - 120, this.GROUND_Y - 160]);
+    const c = this.coins.create(x, y, 'coin');
+    c.setVelocityX(-this.worldSpeed);
+    c.body.allowGravity = false;
+    this.time.delayedCall(3500, () => { if (c) c.destroy(); });
+    this.time.delayedCall(Phaser.Math.Between(2000, 4000), this.spawnCoin, [], this);
+  }
+
+  collectCoin(player, coin) {
+    coin.destroy();
+    this.coinsCollected++;
+    this.coinText.setText('Coins: ' + this.coinsCollected);
+  }
+
   hitObstacle() {
+    if (this.gameOver) return;
     this.gameOver = true;
     this.physics.pause();
     this.player.setTint(0xff0000);
