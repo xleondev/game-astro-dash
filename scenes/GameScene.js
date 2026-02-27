@@ -53,6 +53,21 @@ export default class GameScene extends Phaser.Scene {
       this.player.setVelocityY(-600);
     }
 
+    // Slide
+    if (Phaser.Input.Keyboard.JustDown(this.cursors.down) && onGround) {
+      if (!this.isSliding) {
+        this.isSliding = true;
+        this.player.setDisplaySize(40, 30); // squish to half height
+        this.player.body.setSize(40, 30);
+        this.player.y = this.GROUND_Y - 15;
+        this.time.delayedCall(500, () => {
+          this.isSliding = false;
+          this.player.setDisplaySize(40, 60);
+          this.player.body.setSize(40, 60);
+        });
+      }
+    }
+
     const dt = delta / 1000;
     const move = this.worldSpeed * dt;
 
