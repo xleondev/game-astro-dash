@@ -123,6 +123,11 @@ export default class GameScene extends Phaser.Scene {
   hitObstacle() {
     if (this.gameOver) return;
     this.gameOver = true;
+
+    // Clean up boss events if active
+    if (this.bossCountdown) { this.bossCountdown.remove(); this.bossCountdown = null; }
+    if (this.bossFiringEvent) { this.bossFiringEvent.remove(); this.bossFiringEvent = null; }
+
     this.physics.pause();
     this.player.setTint(0xff0000);
     this.time.delayedCall(1000, () => {
