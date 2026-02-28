@@ -1,6 +1,6 @@
 const SKINS = [
-  { id: 'astronaut_white',  label: 'Astronaut',    cost: 0,   texture: 'player', tint: 0xffffff },
-  { id: 'astronaut_orange', label: 'Orange Suit',  cost: 50,  texture: 'player', tint: 0xff8800 },
+  { id: 'astronaut_white',  label: 'Astronaut',   cost: 0,  texture: 'player', tint: 0xffffff },
+  { id: 'astronaut_orange', label: 'Orange Suit', cost: 50, texture: 'player', tint: 0xff8800 },
   { id: 'robot',            label: 'Robot',        cost: 100, texture: 'robot',  tint: 0xffffff },
   { id: 'alien',            label: 'Alien',        cost: 150, texture: 'alien',  tint: 0xffffff },
   { id: 'rocket',           label: 'Mini Rocket',  cost: 200, texture: 'rocket', tint: 0xffffff },

@@ -74,16 +74,105 @@ class AudioManager {
   }
 
   _sfxJump(t) {
-    this._sweep(220, 550, t, 0.12, 'square', this.sfxVol);
+    const ctx = this._getCtx();
+
+    // Layer 1 — main upward sweep: the satisfying "boing" rise
+    const osc1 = ctx.createOscillator();
+    const g1   = ctx.createGain();
+    osc1.type = 'square';
+    osc1.frequency.setValueAtTime(200, t);
+    osc1.frequency.exponentialRampToValueAtTime(740, t + 0.20);
+    g1.gain.setValueAtTime(0.001, t);
+    g1.gain.linearRampToValueAtTime(this.sfxVol * 1.1, t + 0.012);
+    g1.gain.setValueAtTime(this.sfxVol * 0.85, t + 0.06);
+    g1.gain.linearRampToValueAtTime(0.0001, t + 0.22);
+    osc1.connect(g1); g1.connect(this._masterGain);
+    osc1.start(t); osc1.stop(t + 0.24);
+
+    // Layer 2 — low thump at launch: adds weight and "oomph"
+    const osc2 = ctx.createOscillator();
+    const g2   = ctx.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(190, t);
+    osc2.frequency.exponentialRampToValueAtTime(70, t + 0.09);
+    g2.gain.setValueAtTime(this.sfxVol * 0.75, t);
+    g2.gain.linearRampToValueAtTime(0.0001, t + 0.10);
+    osc2.connect(g2); g2.connect(this._masterGain);
+    osc2.start(t); osc2.stop(t + 0.12);
+
+    // Layer 3 — bright shimmer that trails in: adds sparkle
+    const osc3 = ctx.createOscillator();
+    const g3   = ctx.createGain();
+    osc3.type = 'triangle';
+    osc3.frequency.setValueAtTime(680, t + 0.04);
+    osc3.frequency.exponentialRampToValueAtTime(1480, t + 0.20);
+    g3.gain.setValueAtTime(0.0001, t + 0.03);
+    g3.gain.linearRampToValueAtTime(this.sfxVol * 0.28, t + 0.07);
+    g3.gain.linearRampToValueAtTime(0.0001, t + 0.22);
+    osc3.connect(g3); g3.connect(this._masterGain);
+    osc3.start(t + 0.03); osc3.stop(t + 0.24);
   }
 
   _sfxSlide(t) {
-    this._sweep(380, 140, t, 0.13, 'square', this.sfxVol * 0.8);
+    const ctx = this._getCtx();
+
+    // Layer 1 — main descending sweep: the "going low" pitch drop
+    const osc1 = ctx.createOscillator();
+    const g1   = ctx.createGain();
+    osc1.type = 'square';
+    osc1.frequency.setValueAtTime(420, t);
+    osc1.frequency.exponentialRampToValueAtTime(105, t + 0.22);
+    g1.gain.setValueAtTime(0.001, t);
+    g1.gain.linearRampToValueAtTime(this.sfxVol * 1.0, t + 0.012);
+    g1.gain.setValueAtTime(this.sfxVol * 0.8, t + 0.05);
+    g1.gain.linearRampToValueAtTime(0.0001, t + 0.25);
+    osc1.connect(g1); g1.connect(this._masterGain);
+    osc1.start(t); osc1.stop(t + 0.27);
+
+    // Layer 2 — scrape / friction: gritty sawtooth for ground contact
+    const osc2 = ctx.createOscillator();
+    const g2   = ctx.createGain();
+    osc2.type = 'sawtooth';
+    osc2.frequency.setValueAtTime(160, t + 0.03);
+    osc2.frequency.exponentialRampToValueAtTime(55, t + 0.22);
+    g2.gain.setValueAtTime(0.0001, t + 0.02);
+    g2.gain.linearRampToValueAtTime(this.sfxVol * 0.38, t + 0.06);
+    g2.gain.linearRampToValueAtTime(0.0001, t + 0.24);
+    osc2.connect(g2); g2.connect(this._masterGain);
+    osc2.start(t + 0.02); osc2.stop(t + 0.26);
+
+    // Layer 3 — air whoosh: quick high-to-low sweep as you duck under
+    const osc3 = ctx.createOscillator();
+    const g3   = ctx.createGain();
+    osc3.type = 'triangle';
+    osc3.frequency.setValueAtTime(1100, t);
+    osc3.frequency.exponentialRampToValueAtTime(220, t + 0.10);
+    g3.gain.setValueAtTime(this.sfxVol * 0.42, t);
+    g3.gain.linearRampToValueAtTime(0.0001, t + 0.11);
+    osc3.connect(g3); g3.connect(this._masterGain);
+    osc3.start(t); osc3.stop(t + 0.13);
   }
 
   _sfxCoin(t) {
-    this._note(880,  t,        0.07, 'square', this.sfxVol * 0.8);
-    this._note(1320, t + 0.07, 0.10, 'square', this.sfxVol * 0.8);
+    const ctx = this._getCtx();
+
+    // Layer 1 — ascending C-major arpeggio: cheerful "collecting" rise
+    [1047, 1319, 1568].forEach((freq, i) => {
+      this._note(freq, t + i * 0.062, 0.09, 'square', this.sfxVol * 0.78);
+    });
+
+    // Layer 2 — bell shimmer: long bright ring-out tail
+    const osc = ctx.createOscillator();
+    const g   = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(2093, t); // C7 — high sparkle
+    g.gain.setValueAtTime(this.sfxVol * 0.55, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+    osc.connect(g); g.connect(this._masterGain);
+    osc.start(t); osc.stop(t + 0.47);
+
+    // Layer 3 — low body note: gives the coin physical weight
+    this._note(523, t, 0.05, 'triangle', this.sfxVol * 0.42);
   }
 
   _sfxHit(t) {
